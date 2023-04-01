@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'resources/theme_manager.dart';
 import 'responsive/mobile_screen_layout.dart';
 import 'responsive/responsive_layout_screen.dart';
 import 'responsive/web_screen_layout.dart';
 import 'screens/login_screen.dart';
-import 'utils/theme.dart';
 
 void main() {
   runApp(const MyApp());

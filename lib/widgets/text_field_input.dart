@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../resources/color_manager.dart';
+import '../resources/style_manager.dart';
+
 class TextFieldInput extends StatelessWidget {
   const TextFieldInput({
     super.key,
@@ -25,11 +28,14 @@ class TextFieldInput extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
+        hintStyle: getRegularTextStyle(
+          color: ColorManager.secondaryColor,
+        ),
         border: inputBorder,
         focusedBorder: inputBorder,
         enabledBorder: inputBorder,
         filled: true,
-        fillColor: Colors.grey,
+        fillColor: ColorManager.textInputBackground,
         contentPadding: const EdgeInsets.all(8),
       ),
       keyboardType: textInputType,

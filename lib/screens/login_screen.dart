@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../utils/colors.dart';
+import '../resources/assets_manager.dart';
+import '../resources/color_manager.dart';
+import '../resources/fonts_manager.dart';
+import '../resources/style_manager.dart';
 import '../widgets/text_field_input.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -41,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Logo
               SvgPicture.asset(
-                'assets/instagram_logo.svg',
-                color: Colors.white,
+                ImageAssets.appLogo,
+                color: ColorManager.whiteColor,
                 height: 64,
               ),
               const SizedBox(
@@ -86,9 +89,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         Radius.circular(4),
                       ),
                     ),
-                    color: blueColor,
+                    color: ColorManager.blueColor,
                   ),
-                  child: const Text('Log in'),
+                  child: Text(
+                    'Log in',
+                    style: getRegularTextStyle(
+                      color: ColorManager.whiteColor,
+                      fontSize: FontSize.s14,
+                    ),
+                  ),
                 ),
               ),
 
@@ -106,21 +115,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: const Text(
+                    child: Text(
                       "Don't have an account? ",
-                      style: TextStyle(color: Colors.grey),
+                      style: getRegularTextStyle(
+                        color: ColorManager.greyColor,
+                        fontSize: FontSize.s14,
+                      ),
                     ),
                   ),
                   InkWell(
                     onTap: () {},
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: const Text(
+                      child: Text(
                         "Sign up.",
-                        style: TextStyle(
-                          color: Colors.white,
-                          // fontWeight: FontWeight.bold,
-                        ),
+                        style: getSemiBoldTextStyle(
+                        color: ColorManager.whiteColor,
+                        fontSize: FontSize.s14,
+                      ),
                       ),
                     ),
                   ),
