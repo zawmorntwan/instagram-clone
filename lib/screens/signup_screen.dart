@@ -1,10 +1,17 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../resources/assets_manager.dart';
 import '../resources/color_manager.dart';
 import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
+import '../services/auth_services.dart';
+import '../services/services.dart';
 import '../widgets/text_field_input.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -15,10 +22,12 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final _bioController = TextEditingController();
   final _emailController = TextEditingController();
+  Uint8List? _image;
+  bool _isLoading = false;
   final _passwordController = TextEditingController();
   final _userNameController = TextEditingController();
-  final _bioController = TextEditingController();
 
   @override
   void dispose() {
@@ -27,6 +36,37 @@ class _SignupScreenState extends State<SignupScreen> {
     _passwordController.dispose();
     _userNameController.dispose();
     _bioController.dispose();
+  }
+
+  void selectImage() async {
+    Uint8List image = await Services().pickImage(ImageSource.gallery);
+    setState(() {
+      _image = image;
+    });
+  }
+
+  void signUpUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String response = await AuthServices().signUpUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+      userName: _userNameController.text,
+      bio: _bioController.text,
+      file: _image!,
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (response != 'success') {
+      Services().showSnackBar(
+        context,
+        response,
+      );
+    }
   }
 
   @override
@@ -59,18 +99,22 @@ class _SignupScreenState extends State<SignupScreen> {
               // circular widget to accept and show selected file
               Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 64,
-                    backgroundImage: NetworkImage(
-                      'https://images.unsplash.com/photo-1680173683324-14f412fbf00d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80',
-                    ),
-                  ),
+                  _image != null
+                      ? CircleAvatar(
+                          radius: 64,
+                          backgroundImage: MemoryImage(_image!),
+                        )
+                      : const CircleAvatar(
+                          radius: 64,
+                          backgroundImage:
+                              AssetImage(ImageAssets.defaultUserPhoto),
+                        ),
                   Positioned(
                     bottom: -10,
                     left: 80,
                     child: IconButton(
-                      onPressed: () {},
-                      icon: Icon(
+                      onPressed: selectImage,
+                      icon: const Icon(
                         Icons.add_a_photo,
                         color: ColorManager.whiteColor,
                       ),
@@ -134,27 +178,38 @@ class _SignupScreenState extends State<SignupScreen> {
 
               // login button
               InkWell(
-                onTap: () {},
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: const ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(4),
+                onTap: signUpUser,
+                child: _isLoading
+                    ? const Center(
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: ColorManager.whiteColor,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: const ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(4),
+                            ),
+                          ),
+                          color: ColorManager.blueColor,
+                        ),
+                        child: Text(
+                          'Sign up',
+                          style: getRegularTextStyle(
+                            color: ColorManager.whiteColor,
+                            fontSize: FontSize.s14,
+                          ),
+                        ),
                       ),
-                    ),
-                    color: ColorManager.blueColor,
-                  ),
-                  child: Text(
-                    'Log in',
-                    style: getRegularTextStyle(
-                      color: ColorManager.whiteColor,
-                      fontSize: FontSize.s14,
-                    ),
-                  ),
-                ),
               ),
 
               const SizedBox(
@@ -172,7 +227,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(
-                      "Don't have an account? ",
+                      "Already have an account? ",
                       style: getRegularTextStyle(
                         color: ColorManager.greyColor,
                         fontSize: FontSize.s14,
@@ -184,7 +239,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        "Sign up.",
+                        "log in.",
                         style: getSemiBoldTextStyle(
                           color: ColorManager.whiteColor,
                           fontSize: FontSize.s14,

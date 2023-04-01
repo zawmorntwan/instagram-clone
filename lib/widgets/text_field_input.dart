@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../resources/color_manager.dart';
+import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
 
 class TextFieldInput extends StatelessWidget {
@@ -26,6 +27,10 @@ class TextFieldInput extends StatelessWidget {
     );
     return TextField(
       controller: controller,
+      style: getRegularTextStyle(
+        color: ColorManager.whiteColor,
+        fontSize: FontSize.s14,
+      ),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: getRegularTextStyle(
