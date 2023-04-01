@@ -5,5 +5,6 @@ import 'colors.dart';
 getTheme() {
   return ThemeData(
     scaffoldBackgroundColor: mobileBackgroundColor,
+    primaryColor: primaryColor,
   );
 }
