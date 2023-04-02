@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -5,6 +6,9 @@ import '../resources/assets_manager.dart';
 import '../resources/color_manager.dart';
 import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
+import '../services/auth_services.dart';
+import '../services/services.dart';
+import '../widgets/loader.dart';
 import '../widgets/text_field_input.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,6 +20,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
+  bool _isLoading = false;
   final _passwordController = TextEditingController();
 
   @override
@@ -25,8 +30,27 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
   }
 
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String response = await AuthServices().loginUser(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+    if (response == 'Success') {
+    } else {
+      Services().showSnackBar(context, response);
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
+
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -78,27 +102,33 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // login button
               InkWell(
-                onTap: () {},
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: const ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(4),
+                onTap: loginUser,
+                child: _isLoading
+                    ? Center(
+                        child: Loader(
+                          shape: LoaderShape.fadingCircle,
+                        ),
+                      )
+                    : Container(
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: const ShapeDecoration(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(4),
+                            ),
+                          ),
+                          color: ColorManager.blueColor,
+                        ),
+                        child: Text(
+                          'Log in',
+                          style: getRegularTextStyle(
+                            color: ColorManager.whiteColor,
+                            fontSize: FontSize.s14,
+                          ),
+                        ),
                       ),
-                    ),
-                    color: ColorManager.blueColor,
-                  ),
-                  child: Text(
-                    'Log in',
-                    style: getRegularTextStyle(
-                      color: ColorManager.whiteColor,
-                      fontSize: FontSize.s14,
-                    ),
-                  ),
-                ),
               ),
 
               const SizedBox(
@@ -110,34 +140,35 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               // transaction to sign up page
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Text(
-                      "Don't have an account? ",
-                      style: getRegularTextStyle(
-                        color: ColorManager.greyColor,
-                        fontSize: FontSize.s14,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {},
-                    child: Container(
+              if (!isKeyboard)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        "Sign up.",
-                        style: getSemiBoldTextStyle(
-                        color: ColorManager.whiteColor,
-                        fontSize: FontSize.s14,
-                      ),
+                        "Don't have an account? ",
+                        style: getRegularTextStyle(
+                          color: ColorManager.greyColor,
+                          fontSize: FontSize.s14,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              )
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          "Sign up.",
+                          style: getSemiBoldTextStyle(
+                            color: ColorManager.whiteColor,
+                            fontSize: FontSize.s14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
             ],
           ),
         ),

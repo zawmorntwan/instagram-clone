@@ -12,6 +12,7 @@ import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
 import '../services/auth_services.dart';
 import '../services/services.dart';
+import '../widgets/loader.dart';
 import '../widgets/text_field_input.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -49,28 +50,40 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() {
       _isLoading = true;
     });
-    String response = await AuthServices().signUpUser(
-      email: _emailController.text,
-      password: _passwordController.text,
-      userName: _userNameController.text,
-      bio: _bioController.text,
-      file: _image!,
-    );
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (response != 'success') {
+    if (_image == null) {
       Services().showSnackBar(
         context,
-        response,
+        'Please select profile photo.',
       );
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      String response = await AuthServices().signUpUser(
+        email: _emailController.text,
+        password: _passwordController.text,
+        userName: _userNameController.text,
+        bio: _bioController.text,
+        file: _image!,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (response != 'success') {
+        Services().showSnackBar(
+          context,
+          response,
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
+
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -78,6 +91,7 @@ class _SignupScreenState extends State<SignupScreen> {
             horizontal: 32,
           ),
           width: double.infinity,
+          height: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -87,45 +101,48 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
 
               // Logo
-              SvgPicture.asset(
-                ImageAssets.appLogo,
-                color: ColorManager.whiteColor,
-                height: 64,
-              ),
+              if (!isKeyboard)
+                SvgPicture.asset(
+                  ImageAssets.appLogo,
+                  color: ColorManager.whiteColor,
+                  height: 64,
+                ),
               const SizedBox(
                 height: 64,
               ),
 
               // circular widget to accept and show selected file
-              Stack(
-                children: [
-                  _image != null
-                      ? CircleAvatar(
-                          radius: 64,
-                          backgroundImage: MemoryImage(_image!),
-                        )
-                      : const CircleAvatar(
-                          radius: 64,
-                          backgroundImage:
-                              AssetImage(ImageAssets.defaultUserPhoto),
+              if (!isKeyboard)
+                Stack(
+                  children: [
+                    _image != null
+                        ? CircleAvatar(
+                            radius: 64,
+                            backgroundImage: MemoryImage(_image!),
+                          )
+                        : const CircleAvatar(
+                            radius: 64,
+                            backgroundImage:
+                                AssetImage(ImageAssets.defaultUserPhoto),
+                          ),
+                    Positioned(
+                      bottom: -10,
+                      left: 80,
+                      child: IconButton(
+                        onPressed: selectImage,
+                        icon: const Icon(
+                          Icons.add_a_photo,
+                          color: ColorManager.whiteColor,
                         ),
-                  Positioned(
-                    bottom: -10,
-                    left: 80,
-                    child: IconButton(
-                      onPressed: selectImage,
-                      icon: const Icon(
-                        Icons.add_a_photo,
-                        color: ColorManager.whiteColor,
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              const SizedBox(
-                height: 24,
-              ),
+              if (!isKeyboard)
+                const SizedBox(
+                  height: 24,
+                ),
 
               // text field input for user name
               TextFieldInput(
@@ -180,14 +197,9 @@ class _SignupScreenState extends State<SignupScreen> {
               InkWell(
                 onTap: signUpUser,
                 child: _isLoading
-                    ? const Center(
-                        child: SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            color: ColorManager.whiteColor,
-                            strokeWidth: 2,
-                          ),
+                    ? Center(
+                        child: Loader(
+                          shape: LoaderShape.fadingCircle,
                         ),
                       )
                     : Container(
