@@ -10,4 +10,6 @@ class ColorManager {
   static const Color whiteColor = Colors.white;
   static const Color greyColor = Colors.grey;
   static const Color textInputBackground = Color(0xff131313);
+  static const Color tabBarIconActiveColor = Colors.white;
+  static const Color tabBarIconUnactiveColor = Color(0xff535353);
 }
