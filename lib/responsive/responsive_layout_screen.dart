@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/user_provider.dart';
 import '../utils/dimensions.dart';
 
-class ResponsiveLayout extends StatelessWidget {
+class ResponsiveLayout extends StatefulWidget {
   const ResponsiveLayout({
     super.key,
     required this.webScreenLayout,
@@ -13,13 +15,28 @@ class ResponsiveLayout extends StatelessWidget {
   final Widget webScreenLayout;
 
   @override
+  State<ResponsiveLayout> createState() => _ResponsiveLayoutState();
+}
+
+class _ResponsiveLayoutState extends State<ResponsiveLayout> {
+  @override
+  void initState() {
+    super.initState();
+    addData();
+  }
+
+  addData() async {
+    await Provider.of<UserProvider>(context, listen: false).refreshUser();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth > webScreenSize) {
-          return webScreenLayout;
+          return widget.webScreenLayout;
         } else {
-          return mobileScreenLayout;
+          return widget.mobileScreenLayout;
         }
       },
     );
