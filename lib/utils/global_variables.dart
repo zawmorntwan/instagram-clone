@@ -19,7 +19,7 @@ final homeScreenItems = [
       color: ColorManager.primaryColor,
     ),
   ),
-  AddPostScreen(),
+  const AddPostScreen(),
   Text(
     'Noti',
     style: getRegularTextStyle(

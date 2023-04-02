@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import '../providers/user_provider.dart';
 import '../resources/color_manager.dart';
 import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
+import '../services/firestore_services.dart';
 import '../services/services.dart';
 
 class AddPostScreen extends StatefulWidget {
@@ -21,6 +24,46 @@ class AddPostScreen extends StatefulWidget {
 class _AddPostScreenState extends State<AddPostScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   Uint8List? _file;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _descriptionController.dispose();
+  }
+
+  void uploadPost({
+    required String uId,
+    required String userName,
+    required String profileImage,
+  }) async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      String response = await FirestoreServices().uploadPost(
+        uId: uId,
+        description: _descriptionController.text,
+        file: _file!,
+        userName: userName,
+        profileImageUrl: profileImage,
+      );
+      if (response == "Success") {
+        clearImage();
+        Services().showSnackBar(context, 'Posted!');
+      } else {
+        Services().showSnackBar(context, response);
+      }
+    } catch (err) {
+      Services().showSnackBar(
+        context,
+        err.toString(),
+      );
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   void _selectImage(BuildContext context) async {
     return showDialog(
@@ -68,6 +111,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
     );
   }
 
+  void clearImage() {
+    setState(() {
+      _file = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final User? user = Provider.of<UserProvider>(context).getUser;
@@ -84,9 +133,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
         : Scaffold(
             appBar: AppBar(
               title: const Text('New post'),
+              leading: IconButton(
+                onPressed: clearImage,
+                icon: const Icon(
+                  Icons.arrow_back,
+                ),
+              ),
               actions: [
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => uploadPost(
+                    uId: user!.uId,
+                    userName: user.userName,
+                    profileImage: user.photoUrl,
+                  ),
                   child: Text(
                     'Post',
                     style: getSemiBoldTextStyle(
@@ -99,6 +158,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
             ),
             body: Column(
               children: [
+                _isLoading
+                    ? const LinearProgressIndicator()
+                    : const Padding(
+                        padding: EdgeInsets.only(
+                          top: 0,
+                        ),
+                      ),
+                const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +179,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                       width: MediaQuery.of(context).size.width * 0.5,
                       child: TextField(
                         controller: _descriptionController,
-                        decoration: InputDecoration(
+                        style: getRegularTextStyle(
+                          color: ColorManager.whiteColor,
+                          fontSize: FontSize.s14,
+                        ),
+                        decoration: const InputDecoration(
                           hintText: 'Write a caption...',
                           border: InputBorder.none,
                         ),
