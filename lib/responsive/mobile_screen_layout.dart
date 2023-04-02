@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../resources/color_manager.dart';
-import '../resources/style_manager.dart';
+import '../utils/global_variables.dart';
 
 class MobileScreenLayout extends StatefulWidget {
   const MobileScreenLayout({super.key});
@@ -47,38 +47,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
         onPageChanged: (value) {
           onPageChanged(value);
         },
-        children: [
-          Text(
-            'Feed',
-            style: getRegularTextStyle(
-              color: ColorManager.primaryColor,
-            ),
-          ),
-          Text(
-            'Search',
-            style: getRegularTextStyle(
-              color: ColorManager.primaryColor,
-            ),
-          ),
-          Text(
-            'Post',
-            style: getRegularTextStyle(
-              color: ColorManager.primaryColor,
-            ),
-          ),
-          Text(
-            'Noti',
-            style: getRegularTextStyle(
-              color: ColorManager.primaryColor,
-            ),
-          ),
-          Text(
-            'Profile',
-            style: getRegularTextStyle(
-              color: ColorManager.primaryColor,
-            ),
-          ),
-        ],
+        children: homeScreenItems,
       ),
       bottomNavigationBar: CupertinoTabBar(
         backgroundColor: ColorManager.mobileBackgroundColor,
