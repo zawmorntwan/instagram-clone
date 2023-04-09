@@ -7,6 +7,7 @@ import '../providers/user_provider.dart';
 import '../resources/color_manager.dart';
 import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
+import '../screens/comments_screen.dart';
 import '../services/firestore_services.dart';
 import 'like_animation.dart';
 
@@ -181,7 +182,11 @@ class _PostCardState extends State<PostCard> {
                 ),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CommentsScreen(),
+                  ),
+                ),
                 icon: const Icon(
                   Icons.comment_outlined,
                   color: ColorManager.whiteColor,
