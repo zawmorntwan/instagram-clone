@@ -1,20 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../models/user.dart';
+import '../providers/user_provider.dart';
 import '../resources/color_manager.dart';
 import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
+import '../services/firestore_services.dart';
 import '../widgets/comment_card.dart';
 
 class CommentsScreen extends StatefulWidget {
-  const CommentsScreen({super.key});
+  const CommentsScreen({
+    super.key,
+    required this.snap,
+  });
+
+  final snap;
 
   @override
   State<CommentsScreen> createState() => _CommentsScreenState();
 }
 
 class _CommentsScreenState extends State<CommentsScreen> {
+  final _commentController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _commentController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final User? user = Provider.of<UserProvider>(context).getUser;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: ColorManager.mobileBackgroundColor,
@@ -30,9 +48,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
           padding: const EdgeInsets.only(left: 16, right: 8),
           child: Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 backgroundImage: NetworkImage(
-                  'https://images.unsplash.com/photo-1680988242699-a1a0428f3fd9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80',
+                  user!.photoUrl,
                 ),
                 radius: 18,
               ),
@@ -43,12 +61,13 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     right: 8.0,
                   ),
                   child: TextField(
+                    controller: _commentController,
                     style: getRegularTextStyle(
                       color: ColorManager.whiteColor,
                       fontSize: FontSize.s14,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Comment as userName',
+                      hintText: 'Comment as ${user.userName}',
                       hintStyle: getRegularTextStyle(
                         color: ColorManager.greyColor,
                         fontSize: FontSize.s14,
@@ -59,7 +78,17 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 ),
               ),
               InkWell(
-                onTap: () {},
+                onTap: () async {
+                  if (_commentController.text.isNotEmpty) {
+                    await FirestoreServices().postComment(
+                      postId: widget.snap['postId'],
+                      text: _commentController.text,
+                      uId: user.uId,
+                      userName: user.userName,
+                      profilePic: user.photoUrl,
+                    );
+                  }
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 8,

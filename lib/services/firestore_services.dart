@@ -55,11 +55,12 @@ class FirestoreServices {
     return response;
   }
 
-  Future<void> likePost(
-    String postId,
-    String uId,
-    List likes,
-  ) async {
+  // Update like
+  Future<void> likePost({
+    required String postId,
+    required String uId,
+    required List likes,
+  }) async {
     try {
       if (likes.contains(uId)) {
         await _firestore.collection('posts').doc(postId).update({
@@ -70,6 +71,34 @@ class FirestoreServices {
           'likes': FieldValue.arrayUnion([uId]),
         });
       }
+    } catch (err) {
+      print(err.toString());
+    }
+  }
+
+  // Update comment
+  Future<void> postComment({
+    required String postId,
+    required String text,
+    required String uId,
+    required String userName,
+    required String profilePic,
+  }) async {
+    try {
+      String commentId = const Uuid().v1();
+      await _firestore
+          .collection('posts')
+          .doc(postId)
+          .collection('comments')
+          .doc(commentId)
+          .set({
+        'profilePic': profilePic,
+        'userName': userName,
+        'uId': uId,
+        'text': text,
+        'commentId': commentId,
+        'datePublished': DateTime.now(),
+      });
     } catch (err) {
       print(err.toString());
     }

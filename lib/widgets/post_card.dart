@@ -25,6 +25,7 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
+
   @override
   Widget build(BuildContext context) {
     final User? user = Provider.of<UserProvider>(context).getUser;
@@ -113,9 +114,9 @@ class _PostCardState extends State<PostCard> {
           InkWell(
             onDoubleTap: () async {
               await FirestoreServices().likePost(
-                widget.snap['postId'],
-                user!.uId,
-                widget.snap['likes'],
+                postId: widget.snap['postId'],
+                uId: user!.uId,
+                likes: widget.snap['likes'],
               );
               setState(() {
                 isLikeAnimating = true;
@@ -165,9 +166,9 @@ class _PostCardState extends State<PostCard> {
                 child: IconButton(
                   onPressed: () async {
                     await FirestoreServices().likePost(
-                      widget.snap['postId'],
-                      user.uId,
-                      widget.snap['likes'],
+                      postId: widget.snap['postId'],
+                      uId: user.uId,
+                      likes: widget.snap['likes'],
                     );
                   },
                   icon: widget.snap['likes'].contains(user.uId)
@@ -184,7 +185,9 @@ class _PostCardState extends State<PostCard> {
               IconButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const CommentsScreen(),
+                    builder: (context) => CommentsScreen(
+                      snap: widget.snap,
+                    ),
                   ),
                 ),
                 icon: const Icon(
