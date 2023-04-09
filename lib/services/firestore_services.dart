@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -51,5 +53,25 @@ class FirestoreServices {
       response = err.toString();
     }
     return response;
+  }
+
+  Future<void> likePost(
+    String postId,
+    String uId,
+    List likes,
+  ) async {
+    try {
+      if (likes.contains(uId)) {
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayRemove([uId]),
+        });
+      } else {
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayUnion([uId]),
+        });
+      }
+    } catch (err) {
+      print(err.toString());
+    }
   }
 }

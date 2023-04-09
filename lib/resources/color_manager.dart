@@ -12,4 +12,6 @@ class ColorManager {
   static const Color textInputBackground = Color(0xff131313);
   static const Color tabBarIconActiveColor = Colors.white;
   static const Color tabBarIconUnactiveColor = Color(0xff535353);
+  static const Color likeColor = Colors.red;
+
 }

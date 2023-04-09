@@ -7,6 +7,7 @@ import '../providers/user_provider.dart';
 import '../resources/color_manager.dart';
 import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
+import '../services/firestore_services.dart';
 import 'like_animation.dart';
 
 class PostCard extends StatefulWidget {
@@ -109,7 +110,12 @@ class _PostCardState extends State<PostCard> {
 
           // Image section
           InkWell(
-            onDoubleTap: () {
+            onDoubleTap: () async {
+              await FirestoreServices().likePost(
+                widget.snap['postId'],
+                user!.uId,
+                widget.snap['likes'],
+              );
               setState(() {
                 isLikeAnimating = true;
               });
@@ -156,11 +162,22 @@ class _PostCardState extends State<PostCard> {
                 isAnimating: widget.snap['likes'].contains(user!.uId),
                 smallLike: true,
                 child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.favorite_border,
-                    color: ColorManager.whiteColor,
-                  ),
+                  onPressed: () async {
+                    await FirestoreServices().likePost(
+                      widget.snap['postId'],
+                      user.uId,
+                      widget.snap['likes'],
+                    );
+                  },
+                  icon: widget.snap['likes'].contains(user.uId)
+                      ? const Icon(
+                          Icons.favorite,
+                          color: ColorManager.likeColor,
+                        )
+                      : const Icon(
+                          Icons.favorite_border,
+                          color: ColorManager.whiteColor,
+                        ),
                 ),
               ),
               IconButton(
