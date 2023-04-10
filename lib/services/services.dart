@@ -16,11 +16,16 @@ class Services {
     }
   }
 
-  showSnackBar(BuildContext context, String content) {
+  void showSnackBar(BuildContext context, String content) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(content),
       ),
     );
+  }
+
+  String dateFormatter(String dateTime) {
+    //return DateFormat.yMMMd().format(dateTime.toDate()),
+    return '9 Apr 2023';
   }
 }

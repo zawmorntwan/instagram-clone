@@ -3,9 +3,15 @@ import 'package:flutter/material.dart';
 import '../resources/color_manager.dart';
 import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
+import '../services/services.dart';
 
 class CommentCard extends StatefulWidget {
-  const CommentCard({super.key});
+  const CommentCard({
+    super.key,
+    required this.snap,
+  });
+
+  final snap;
 
   @override
   State<CommentCard> createState() => _CommentCardState();
@@ -21,9 +27,9 @@ class _CommentCardState extends State<CommentCard> {
       ),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             backgroundImage: NetworkImage(
-              'https://images.unsplash.com/photo-1680988242699-a1a0428f3fd9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80',
+              widget.snap['profilePic'],
             ),
             radius: 18,
           ),
@@ -40,13 +46,13 @@ class _CommentCardState extends State<CommentCard> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: 'userName  ',
+                          text: '${widget.snap['userName']}  ',
                           style: getBoldTextStyle(
                             color: ColorManager.primaryColor,
                           ),
                         ),
                         TextSpan(
-                          text: 'Some description to insert',
+                          text: widget.snap['text'],
                           style: getRegularTextStyle(
                             color: ColorManager.secondaryColor,
                           ),
@@ -59,7 +65,7 @@ class _CommentCardState extends State<CommentCard> {
                       top: 4,
                     ),
                     child: Text(
-                      '9 Apr 2023',
+                      Services().dateFormatter(widget.snap['datePublished'].toString()),
                       style: getRegularTextStyle(
                         color: ColorManager.secondaryColor,
                         fontSize: FontSize.s12,
@@ -70,14 +76,16 @@ class _CommentCardState extends State<CommentCard> {
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Icon(
-              Icons.favorite_outline,
-              color: ColorManager.whiteColor,
-              size: 16,
-            ),
-          ),
+
+          // Give like to comment
+          // Container(
+          //   padding: const EdgeInsets.all(8),
+          //   child: const Icon(
+          //     Icons.favorite_outline,
+          //     color: ColorManager.whiteColor,
+          //     size: 16,
+          //   ),
+          // ),
         ],
       ),
     );

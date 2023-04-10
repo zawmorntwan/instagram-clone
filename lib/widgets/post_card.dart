@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // import 'package:intl/intl.dart';
@@ -9,6 +10,7 @@ import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
 import '../screens/comments_screen.dart';
 import '../services/firestore_services.dart';
+import '../services/services.dart';
 import 'like_animation.dart';
 
 class PostCard extends StatefulWidget {
@@ -24,7 +26,29 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  int commentCount = 0;
   bool isLikeAnimating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    getComments();
+  }
+
+  void getComments() async {
+    try {
+      QuerySnapshot snap = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.snap['postId'])
+          .collection('comments')
+          .get();
+
+      commentCount = snap.docs.length;
+    } catch (err) {
+      print(err.toString());
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -253,23 +277,26 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ),
                 ),
-                InkWell(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      'View all 200 comments',
-                      style: getRegularTextStyle(
-                        color: ColorManager.secondaryColor,
+                if (commentCount != 0)
+                  InkWell(
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        commentCount == 1
+                            ? 'View comment'
+                            : 'View all $commentCount comments',
+                        style: getRegularTextStyle(
+                          color: ColorManager.secondaryColor,
+                        ),
                       ),
                     ),
                   ),
-                ),
                 Container(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(
-                    // DateFormat.yMMMd().format(snap['datePublished'].toDate()),
-                    '4 Apr 2023',
+                    Services()
+                        .dateFormatter(widget.snap['datePublished'].toString()),
                     style: getRegularTextStyle(
                       color: ColorManager.secondaryColor,
                       fontSize: 11,

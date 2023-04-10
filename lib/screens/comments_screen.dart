@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,7 @@ import '../resources/fonts_manager.dart';
 import '../resources/style_manager.dart';
 import '../services/firestore_services.dart';
 import '../widgets/comment_card.dart';
+import '../widgets/loader.dart';
 
 class CommentsScreen extends StatefulWidget {
   const CommentsScreen({
@@ -38,7 +40,41 @@ class _CommentsScreenState extends State<CommentsScreen> {
         backgroundColor: ColorManager.mobileBackgroundColor,
         title: const Text('Comments'),
       ),
-      body: CommentCard(),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.snap['postId'])
+            .collection('comments')
+            .orderBy(
+              'datePublished',
+              descending: false,
+            )
+            .snapshots(),
+        builder: (context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: Loader(),
+            );
+          } else if (snapshot.data.docs.length == 0) {
+            return Center(
+              child: Text(
+                'No comments',
+                style: getRegularTextStyle(
+                  color: ColorManager.secondaryColor,
+                ),
+              ),
+            );
+          } else {
+            return ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (ctx, i) => CommentCard(
+                snap: snapshot.data.docs[i].data(),
+              ),
+            );
+          }
+        },
+      ),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: kToolbarHeight,
@@ -87,6 +123,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       userName: user.userName,
                       profilePic: user.photoUrl,
                     );
+                    setState(() {
+                      _commentController.text = '';
+                    });
                   }
                 },
                 child: Container(
